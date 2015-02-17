@@ -17,7 +17,7 @@ docker run --rm \
   -e DATABASE_USERNAME='myapp' \
   -e DATABASE_PASSWORD='P455wOr0' \
   -e DESTINATION=mybucket/postgresql \
-  antoinefinkelstein/postgresql-to-s3-backup-with-docker
+  antoinefinkelstein/postgresql-to-s3-backup
 ```
 
 **And that's it ! Your backup is done. :-)**
