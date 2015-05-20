@@ -12,7 +12,7 @@ suffix='.dump'
 newname=$DATABASE_NAME$prefix$date$suffix
 
 # Dumping the database
-pg_dump -h $DATABASE_IP -U $DATABASE_USERNAME -Fc $DATABASE_NAME > $newname
+pg_dump -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME -Fc $DATABASE_NAME > $newname
 
 # Configuring the S3 upload tool
 echo -e '
