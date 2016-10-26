@@ -1,4 +1,4 @@
-FROM ubuntu:14.10
+FROM ubuntu:14.04
 
 MAINTAINER Antoine Finkelstein <antoine@finkelstein.fr>
 
@@ -10,7 +10,8 @@ RUN wget -O/etc/apt/sources.list.d/s3tools.list http://s3tools.org/repo/deb-all/
 RUN apt-get update
 RUN apt-get install -y s3cmd
 
-RUN apt-get install -y postgresql postgresql-contrib
+RUN apt-get install -y postgresql 
+RUN apt-get install -y postgresql-contrib
 
 # Define default command.
 ADD startup.sh /startup.sh
