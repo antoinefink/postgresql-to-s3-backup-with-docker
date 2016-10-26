@@ -12,7 +12,7 @@ suffix='.dump'
 newname=$DATABASE_NAME$prefix$date$suffix
 
 # Configuring the S3 upload tool
-echo -e '
+cat >/root/.s3cfg <<EOL
 [default]
 access_key = $AWS_ACCESS_KEY
 access_token =
@@ -75,8 +75,7 @@ verbosity = WARNING
 website_endpoint = http://%(bucket)s.s3-website-%(location)s.amazonaws.com/
 website_error =
 website_index = index.html
-' >> /root/.s3cfg
-
+EOL
 # Dumping the database and upload the database
 pg_dump -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME -Fc $DATABASE_NAME | s3cmd put - s3://$DESTINATION/$newname
 
