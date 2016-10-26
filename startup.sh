@@ -11,9 +11,6 @@ prefix='-'
 suffix='.dump'
 newname=$DATABASE_NAME$prefix$date$suffix
 
-# Dumping the database
-pg_dump -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME -Fc $DATABASE_NAME > $newname
-
 # Configuring the S3 upload tool
 echo -e '
 [default]
@@ -80,6 +77,7 @@ website_error =
 website_index = index.html
 ' >> /root/.s3cfg
 
-s3cmd put $newname s3://$DESTINATION/$newname
+# Dumping the database and upload the database
+pg_dump -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME -Fc $DATABASE_NAME | s3cmd put - s3://$DESTINATION/$newname
 
 echo "$DATABASE_NAME backup successful"
