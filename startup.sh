@@ -2,7 +2,7 @@
 
 # Install the pgpass file to create a connection to the database without
 # the need to type in a password
-echo "$DATABASE_IP:$DATABASE_PORT:$DATABASE_NAME:$DATABASE_USERNAME:$DATABASE_PASSWORD" >> /root/.pgpass
+echo "*:*:*:$DATABASE_USERNAME:$DATABASE_PASSWORD" >> /root/.pgpass
 chmod 0600 /root/.pgpass
 
 # Defining the name of the backup file
