@@ -8,7 +8,7 @@ chmod 0600 /root/.pgpass
 # Defining the name of the backup file
 date=`date +%Y-%m-%d`
 prefix='-'
-suffix='.dump'
+suffix='.tar'
 newname=$DATABASE_NAME$prefix$date$suffix
 
 # Configuring the S3 upload tool
