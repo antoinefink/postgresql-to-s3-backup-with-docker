@@ -77,6 +77,6 @@ website_error =
 website_index = index.html
 EOL
 # Dumping the database and upload the database
-pg_basebackup -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME -v -P -w --checkpoint=fast --gzip --format=tar -D - | s3cmd  --multipart-chunk-size-mb=250 --server-side-encryption put - s3://$DESTINATION/$newname
+pg_basebackup -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME -v -P -w --checkpoint=fast --gzip --format=tar -D - | s3cmd  --multipart-chunk-size-mb=150 --server-side-encryption put - s3://$DESTINATION/$newname
 
 echo "$DATABASE_NAME backup successful"
