@@ -8,7 +8,7 @@ chmod 0600 /root/.pgpass
 # Defining the name of the backup file
 date=`date +%Y-%m-%d`
 prefix='-'
-suffix='.tar'
+suffix='.dump'
 newname=$DATABASE_NAME$prefix$date$suffix
 
 # Configuring the S3 upload tool
@@ -52,7 +52,7 @@ list_md5 = False
 log_target_prefix =
 max_delete = -1
 mime_type =
-multipart_chunk_size_mb = 15
+multipart_chunk_size_mb = 200
 preserve_attrs = True
 progress_meter = True
 proxy_host =
@@ -77,6 +77,6 @@ website_error =
 website_index = index.html
 EOL
 # Dumping the database and upload the database
-pg_basebackup -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME -v -P -w --checkpoint=fast --gzip --format=tar -D - | s3cmd --storage-class=STANDARD_IA --multipart-chunk-size-mb=50 --server-side-encryption put - s3://$DESTINATION/$newname
+pg_dump -h $DATABASE_IP -p $DATABASE_PORT -U $DATABASE_USERNAME $DATABASE_NAME | s3cmd  --storage-class=STANDARD_IA --multipart-chunk-size-mb=50 --server-side-encryption put - s3://$DESTINATION/$newname
 
 echo "$DATABASE_NAME backup successful"
