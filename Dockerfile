@@ -13,11 +13,13 @@ RUN sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release 
 RUN wget -q https://www.postgresql.org/media/keys/ACCC4CF8.asc -O - | sudo apt-key add -
 RUN apt-get update
 
-RUN apt-get install -y postgresql
-RUN apt-get install -y postgresql-contrib
+RUN apt-get install -y postgresql-9.6
+RUN apt-get install -y postgresql-contrib-9.6
 
 # Define default command.
 ADD startup.sh /startup.sh
 RUN chmod +x /startup.sh
+
+ENV S3_ENDPOINT s3.amazonaws.com
 
 CMD ["/startup.sh"]
