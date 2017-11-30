@@ -1,5 +1,7 @@
 # Easily backup Postgresql to S3 using Docker
 
+[![Docker Repository on Quay](https://quay.io/repository/antoinefinkelstein/postgresql-to-s3-backup/status "Docker Repository on Quay")](https://quay.io/repository/antoinefinkelstein/postgresql-to-s3-backup)
+
 As with every database, Postgresql needs to be backed up. To make it way more easier to maintain and install, **the entire script is running inside a docker container and will backup your Postgresql database to a S3 bucket**. It will work perfectly only with a few arguments. The only requirement is to have docker installed.
 
 ## Usage
