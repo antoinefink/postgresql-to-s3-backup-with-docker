@@ -5,7 +5,7 @@ MAINTAINER Antoine Finkelstein <antoine@finkelstein.fr>
 ENV S3_ENDPOINT s3.amazonaws.com
 
 RUN apt-get update
-RUN apt-get install -y wget
+RUN apt-get install -y wget curl
 
 RUN apt-get install -y python-setuptools
 RUN wget -qO- https://github.com/antoinefinkelstein/s3cmd-binary/raw/master/s3cmd-1.6.1.tar.gz | tar xvz
