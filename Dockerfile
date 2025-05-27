@@ -1,11 +1,10 @@
 FROM ubuntu:22.04
 
-ENV S3_ENDPOINT s3.amazonaws.com
-
 # Define the postgresql version first so it can be used in the RUN command
 ARG VERSION
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     wget \
     curl \
     gnupg \
