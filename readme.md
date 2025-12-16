@@ -18,20 +18,26 @@ The image is hosted on GitHub Container Registry (GHCR): `ghcr.io/antoinefink/po
 
 ### Environment Variables
 
+You can provide database connection details either via `DATABASE_URL` or via the individual `DATABASE_*` variables.
+If both are set, the individual `DATABASE_*` variables take precedence.
+
 | Variable                  | Description                                                                                                 | Default         | Required |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------- | -------- |
 | `AWS_ACCESS_KEY`          | Your S3 access key.                                                                                         |                 | Yes      |
 | `AWS_SECRET_KEY`          | Your S3 secret key.                                                                                         |                 | Yes      |
-| `DATABASE_IP`             | IP address or hostname of your PostgreSQL server.                                                           |                 | Yes      |
-| `DATABASE_PORT`           | Port number for your PostgreSQL server.                                                                     | `5432`          | Yes      |
-| `DATABASE_NAME`           | Name of the database to backup.                                                                             |                 | Yes      |
-| `DATABASE_USERNAME`       | Username to connect to the PostgreSQL database.                                                             |                 | Yes      |
-| `DATABASE_PASSWORD`       | Password for the PostgreSQL user.                                                                           |                 | Yes      |
+| `DATABASE_URL`            | Full PostgreSQL connection string (e.g., `postgresql://user:pass@host:5432/dbname`).                         |                 | No       |
+| `DATABASE_IP`             | IP address or hostname of your PostgreSQL server.                                                           |                 | Yes*     |
+| `DATABASE_PORT`           | Port number for your PostgreSQL server.                                                                     | `5432`          | Yes*     |
+| `DATABASE_NAME`           | Name of the database to backup.                                                                             |                 | Yes*     |
+| `DATABASE_USERNAME`       | Username to connect to the PostgreSQL database.                                                             |                 | Yes*     |
+| `DATABASE_PASSWORD`       | Password for the PostgreSQL user.                                                                           |                 | Yes*     |
 | `DESTINATION`             | S3 bucket and path for the backup (e.g., `mybucket/postgresql-backups`).                                     |                 | Yes      |
 | `S3_ENDPOINT`             | S3 endpoint URL (e.g., `s3.amazonaws.com` or `nyc3.digitaloceanspaces.com`).                                | `s3.amazonaws.com` | No       |
 | `BACKUP_MODE`             | Backup mode: `now` (backup immediately and exit) or `periodic` (run cron for scheduled backups).           | `now`           | No       |
 | `BACKUP_CRON_SCHEDULE`    | Cron schedule for periodic backups (e.g., `"0 2 * * *"` for daily at 2 AM). Used if `BACKUP_MODE=periodic`. | `"0 0 * * *"`   | No       |
 | `S3_MULTI_CHUNK_SIZE_MB`  | S3 multipart upload chunk size in MB.                                                                       | `100`           | No       |
+
+`*` Required unless `DATABASE_URL` is set.
 
 ### Example: Immediate Backup (Default)
 
@@ -53,6 +59,17 @@ docker run --rm \
 ```
 
 The backup file will be named like `your_database_name-YYYY-MM-DD_HH-MM-SS.dump`.
+
+### Example: Immediate Backup using `DATABASE_URL`
+
+```bash
+docker run --rm \
+  -e AWS_ACCESS_KEY='your_aws_access_key' \
+  -e AWS_SECRET_KEY='your_aws_secret_key' \
+  -e DATABASE_URL='postgresql://your_db_user:your_db_password@your_db_host_or_ip:5432/your_database_name' \
+  -e DESTINATION='your_s3_bucket/path' \
+  ghcr.io/antoinefink/postgresql-to-s3-backup:<PG_VERSION>
+```
 
 ### Example: Periodic Backups (Daily at Midnight)
 

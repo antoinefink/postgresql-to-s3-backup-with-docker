@@ -10,6 +10,108 @@ set -e
 # Default S3 multipart chunk size
 : ${S3_MULTI_CHUNK_SIZE_MB:=100}
 
+# Allow providing database connection details via a single DATABASE_URL.
+# If DATABASE_URL is set, it populates DATABASE_* values unless already provided.
+if [ -n "${DATABASE_URL:-}" ]; then
+  if ! dburl_parsed="$(
+    python3 - <<'PY'
+import base64
+import os
+import sys
+import urllib.parse
+
+url = (os.environ.get("DATABASE_URL") or "").strip()
+if not url:
+    sys.exit(0)
+
+if url.startswith("postgres://"):
+    url = "postgresql://" + url[len("postgres://") :]
+
+try:
+    parsed = urllib.parse.urlparse(url)
+except Exception as exc:
+    print(f"invalid DATABASE_URL: {exc}", file=sys.stderr)
+    sys.exit(2)
+
+if parsed.scheme not in ("postgresql", "postgres"):
+    print(f"invalid DATABASE_URL scheme: {parsed.scheme!r}", file=sys.stderr)
+    sys.exit(2)
+
+query = urllib.parse.parse_qs(parsed.query)
+
+def first(*keys: str) -> str:
+    for key in keys:
+        values = query.get(key)
+        if values:
+            return values[0]
+    return ""
+
+def unquote(value: str) -> str:
+    return urllib.parse.unquote(value) if value else ""
+
+host = unquote(parsed.hostname or first("host"))
+dbname = unquote(parsed.path.lstrip("/") or first("dbname", "database"))
+user = unquote(parsed.username or first("user", "username"))
+password = unquote(parsed.password or first("password"))
+
+port = parsed.port or first("port")
+port_str = str(port).strip() if port is not None else ""
+if not port_str:
+    port_str = "5432"
+
+def b64(value: str) -> str:
+    return base64.b64encode(value.encode("utf-8")).decode("ascii")
+
+print(f"HOST_B64={b64(host)}")
+print(f"PORT_B64={b64(port_str)}")
+print(f"NAME_B64={b64(dbname)}")
+print(f"USER_B64={b64(user)}")
+print(f"PASS_B64={b64(password)}")
+PY
+  )"; then
+    echo "Error: Failed to parse DATABASE_URL." >&2
+    exit 1
+  fi
+
+  dburl_host_b64=""
+  dburl_port_b64=""
+  dburl_name_b64=""
+  dburl_user_b64=""
+  dburl_pass_b64=""
+
+  while IFS= read -r line; do
+    case "$line" in
+      HOST_B64=*) dburl_host_b64="${line#HOST_B64=}" ;;
+      PORT_B64=*) dburl_port_b64="${line#PORT_B64=}" ;;
+      NAME_B64=*) dburl_name_b64="${line#NAME_B64=}" ;;
+      USER_B64=*) dburl_user_b64="${line#USER_B64=}" ;;
+      PASS_B64=*) dburl_pass_b64="${line#PASS_B64=}" ;;
+    esac
+  done <<<"$dburl_parsed"
+
+  dburl_host="$(printf '%s' "$dburl_host_b64" | base64 -d)"
+  dburl_port="$(printf '%s' "$dburl_port_b64" | base64 -d)"
+  dburl_name="$(printf '%s' "$dburl_name_b64" | base64 -d)"
+  dburl_user="$(printf '%s' "$dburl_user_b64" | base64 -d)"
+  dburl_pass="$(printf '%s' "$dburl_pass_b64" | base64 -d)"
+
+  if [ -z "${DATABASE_IP:-}" ] && [ -n "$dburl_host" ]; then
+    export DATABASE_IP="$dburl_host"
+  fi
+  if [ -z "${DATABASE_PORT:-}" ] && [ -n "$dburl_port" ]; then
+    export DATABASE_PORT="$dburl_port"
+  fi
+  if [ -z "${DATABASE_NAME:-}" ] && [ -n "$dburl_name" ]; then
+    export DATABASE_NAME="$dburl_name"
+  fi
+  if [ -z "${DATABASE_USERNAME:-}" ] && [ -n "$dburl_user" ]; then
+    export DATABASE_USERNAME="$dburl_user"
+  fi
+  if [ -z "${DATABASE_PASSWORD:-}" ] && [ -n "$dburl_pass" ]; then
+    export DATABASE_PASSWORD="$dburl_pass"
+  fi
+fi
+
 # Function to perform the backup
 perform_backup() {
   echo "Performing backup for database $DATABASE_NAME..."
