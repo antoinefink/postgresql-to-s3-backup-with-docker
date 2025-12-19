@@ -139,6 +139,12 @@ perform_backup() {
 
 # Main script execution
 if [ "$1" = "perform_backup" ]; then
+  # Source environment variables saved during initial setup (needed for cron)
+  if [ -f /etc/environment ]; then
+    set -a
+    . /etc/environment
+    set +a
+  fi
   perform_backup
   exit 0
 fi
