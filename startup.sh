@@ -250,7 +250,7 @@ chmod 0600 /var/log/cron_backup.log
 # Export necessary environment variables for cron.
 # These will be loaded by cron when it executes jobs.
 # Secure the file since it contains credentials.
-printenv | grep -E '^(AWS_ACCESS_KEY|AWS_SECRET_KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_DEFAULT_REGION|DATABASE_IP|DATABASE_PORT|DATABASE_NAME|DATABASE_USERNAME|DATABASE_PASSWORD|DESTINATION|S3_ENDPOINT)' > /etc/environment
+printenv | grep -E '^(PATH|AWS_ACCESS_KEY|AWS_SECRET_KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_DEFAULT_REGION|DATABASE_IP|DATABASE_PORT|DATABASE_NAME|DATABASE_USERNAME|DATABASE_PASSWORD|DESTINATION|S3_ENDPOINT)' > /etc/environment
 chmod 0600 /etc/environment
 
 if [ "$BACKUP_MODE" = "now" ]; then
